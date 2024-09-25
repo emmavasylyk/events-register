@@ -1,6 +1,7 @@
 "use client";
 
 import { z } from "zod";
+import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { useRouter, useParams } from "next/navigation";
 
@@ -75,14 +76,14 @@ export default function PageRegister() {
       });
 
       if (response.ok) {
-        console.log("User registered successfully");
+        toast.success("User registered successfully");
         router.push("/");
       } else {
         const errorData = await response.json();
-        console.error("Failed to register user:", errorData.error);
+        toast.error(`Failed to register user: ${errorData.error}`);
       }
     } catch (error) {
-      console.error("An error occurred:", error);
+      toast.error(`An error occurred: ${error}`);
     }
   };
 

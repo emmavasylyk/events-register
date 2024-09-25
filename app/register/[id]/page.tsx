@@ -1,31 +1,55 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export default function PageRegister() {
   const router = useRouter();
+  const { id } = useParams();
+
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [source, setSource] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Здесь можно отправить данные на сервер или сохранить их в состоянии
-    console.log({ fullName, email, dateOfBirth, source });
 
-    // Например, можно перенаправить на главную страницу после регистрации
-    router.push("/");
+    try {
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          fullName,
+          email,
+          dateOfBirth: new Date(dateOfBirth).toISOString(),
+          source,
+          eventId: id,
+        }),
+      });
+
+      if (response.ok) {
+        console.log("User registered successfully");
+        router.push("/");
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to register user:", errorData.error);
+      }
+    } catch (error) {
+      console.error("An error occurred:", error);
+    }
   };
 
   return (
     <div>
-      <h1>Register</h1>
+      <h1>Регистрация на событие {id}</h1>
       <form onSubmit={handleSubmit}>
         <div>
-          <label htmlFor="fullName">Полное имя:</label>
+          <label htmlFor="fullName">Full name:</label>
           <Input
             type="text"
             id="fullName"
@@ -45,7 +69,7 @@ export default function PageRegister() {
           />
         </div>
         <div>
-          <label htmlFor="dateOfBirth">Год рождения:</label>
+          <label htmlFor="dateOfBirth">Data of birth:</label>
           <Input
             type="date"
             id="dateOfBirth"
@@ -55,7 +79,7 @@ export default function PageRegister() {
           />
         </div>
         <div>
-          <label>Источник:</label>
+          <label>Where did you hear about this event:</label>
           <div>
             <label>
               <Input
@@ -64,7 +88,7 @@ export default function PageRegister() {
                 checked={source === "social_media"}
                 onChange={(e) => setSource(e.target.value)}
               />
-              Социальные сети
+              Social media
             </label>
             <label>
               <Input
@@ -73,7 +97,7 @@ export default function PageRegister() {
                 checked={source === "friends"}
                 onChange={(e) => setSource(e.target.value)}
               />
-              Друзья
+              Friends
             </label>
             <label>
               <Input
@@ -82,11 +106,11 @@ export default function PageRegister() {
                 checked={source === "other"}
                 onChange={(e) => setSource(e.target.value)}
               />
-              Другое
+              Found myself
             </label>
           </div>
         </div>
-        <button type="submit">Зарегистрироваться</button>
+        <Button type="submit">Register</Button>
       </form>
     </div>
   );

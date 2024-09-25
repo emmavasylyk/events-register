@@ -51,7 +51,7 @@ export default function Events() {
 
   return (
     <div>
-      <ul className="grid grid-cols-4 gap-8 mb-20">
+      <ul className="grid grid-cols-2 gap-4 xl:grid-cols-4 xl:gap-8 mb-6 xl:mb-14">
         {events.map((event) => (
           <ItemEvent
             key={event.id}
@@ -81,11 +81,14 @@ export default function Events() {
                 href="#"
                 onClick={() => handlePageChange(index + 1)}
                 isActive={currentPage === index + 1}
-                className={cn(
-                  currentPage === index + 1
-                    ? "bg-sky-600/10 text-sky-600 border-sky-600 hover:bg-sky-600/10 focus:bg-sky-600/10"
-                    : ""
-                )}
+                className={
+                  (cn(
+                    currentPage === index + 1
+                      ? "bg-sky-600/10 text-sky-600 border-sky-600 hover:bg-sky-600/10 focus:bg-sky-600/10"
+                      : ""
+                  ),
+                  "w-8 h-8 md:w-10 md:h-10")
+                }
               >
                 {index + 1}
               </PaginationLink>

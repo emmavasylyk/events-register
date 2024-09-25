@@ -16,8 +16,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.ico" />
+      </head>
       <body className={inter.className}>
-        <div className="py-6 px-10">{children}</div>
+        <div className="p-5 xl:py-6 xl:px-10">{children}</div>
       </body>
     </html>
   );

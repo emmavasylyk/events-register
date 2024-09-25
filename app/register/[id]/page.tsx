@@ -1,22 +1,64 @@
 "use client";
 
-import { useState } from "react";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
 import { useRouter, useParams } from "next/navigation";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import ButtonBack from "@/components/button-back";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+} from "@/components/ui/form";
+
+import { cn } from "@/lib/utils";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const formSchema = z.object({
+  fullName: z.string().min(2, {
+    message: "Full name must be at least 2 characters.",
+  }),
+  email: z.string().email("Invalid email address"),
+  dateOfBirth: z.string().refine(
+    (val) => {
+      const date = new Date(val);
+      return date instanceof Date && !isNaN(date.valueOf());
+    },
+    {
+      message: "Invalid date of birth.",
+    }
+  ),
+  source: z.string().min(1, {
+    message: "Please select a source.",
+  }),
+});
 
 export default function PageRegister() {
   const router = useRouter();
   const { id } = useParams();
 
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
-  const [dateOfBirth, setDateOfBirth] = useState("");
-  const [source, setSource] = useState("");
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    mode: "onBlur",
+    defaultValues: {
+      fullName: "",
+      email: "",
+      dateOfBirth: "",
+      source: "",
+    },
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = form;
 
+  const onSubmit = async (data: any) => {
     try {
       const response = await fetch("/api/register", {
         method: "POST",
@@ -24,10 +66,10 @@ export default function PageRegister() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          fullName,
-          email,
-          dateOfBirth: new Date(dateOfBirth).toISOString(),
-          source,
+          fullName: data.fullName,
+          email: data.email,
+          dateOfBirth: new Date(data.dateOfBirth).toISOString(),
+          source: data.source,
           eventId: id,
         }),
       });
@@ -45,73 +87,150 @@ export default function PageRegister() {
   };
 
   return (
-    <div>
-      <h1>Регистрация на событие {id}</h1>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="fullName">Full name:</label>
-          <Input
-            type="text"
-            id="fullName"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            required
+    <>
+      <ButtonBack />
+      <h2 className="text-3xl font-bold text-center mb-14">
+        Event registration
+      </h2>
+      <Form {...form}>
+        <form
+          onSubmit={handleSubmit(onSubmit)}
+          className="space-y-6 w-[500px] mx-auto p-8 bg-sky-200 rounded-md"
+        >
+          <FormField
+            control={form.control}
+            name="fullName"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-lg font-medium text-black">
+                  Full Name
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    placeholder="Enter your full name"
+                    {...field}
+                    className={cn(
+                      "w-full text-base",
+                      errors.fullName?.message && "border-red-500 bg-red-100"
+                    )}
+                  />
+                </FormControl>
+                {errors.fullName?.message &&
+                  typeof errors.fullName.message === "string" && (
+                    <p className="text-red-500 font-medium text-sm">
+                      {errors.fullName.message}
+                    </p>
+                  )}
+              </FormItem>
+            )}
           />
-        </div>
-        <div>
-          <label htmlFor="email">Email:</label>
-          <Input
-            type="email"
-            id="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
+
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-lg font-medium text-black">
+                  Email
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="email"
+                    placeholder="Enter your email"
+                    {...field}
+                    className={cn(
+                      "w-full text-base",
+                      errors.email?.message && "border-red-500 bg-red-100"
+                    )}
+                  />
+                </FormControl>
+                {errors.email?.message &&
+                  typeof errors.email.message === "string" && (
+                    <p className="text-red-500 font-medium text-sm">
+                      {errors.email.message}
+                    </p>
+                  )}
+              </FormItem>
+            )}
           />
-        </div>
-        <div>
-          <label htmlFor="dateOfBirth">Data of birth:</label>
-          <Input
-            type="date"
-            id="dateOfBirth"
-            value={dateOfBirth}
-            onChange={(e) => setDateOfBirth(e.target.value)}
-            required
+
+          <FormField
+            control={form.control}
+            name="dateOfBirth"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="text-lg font-medium text-black">
+                  Date of Birth
+                </FormLabel>
+                <FormControl>
+                  <Input
+                    type="date"
+                    {...field}
+                    className={cn(
+                      "w-full text-base",
+                      errors.dateOfBirth?.message && "border-red-500 bg-red-100"
+                    )}
+                  />
+                </FormControl>
+                {errors.dateOfBirth?.message &&
+                  typeof errors.dateOfBirth.message === "string" && (
+                    <p className="text-red-500 font-medium text-sm">
+                      {errors.dateOfBirth.message}
+                    </p>
+                  )}
+              </FormItem>
+            )}
           />
-        </div>
-        <div>
-          <label>Where did you hear about this event:</label>
+
           <div>
-            <label>
-              <Input
-                type="radio"
-                value="social_media"
-                checked={source === "social_media"}
-                onChange={(e) => setSource(e.target.value)}
-              />
-              Social media
-            </label>
-            <label>
-              <Input
-                type="radio"
-                value="friends"
-                checked={source === "friends"}
-                onChange={(e) => setSource(e.target.value)}
-              />
-              Friends
-            </label>
-            <label>
-              <Input
-                type="radio"
-                value="other"
-                checked={source === "other"}
-                onChange={(e) => setSource(e.target.value)}
-              />
-              Found myself
-            </label>
+            <FormLabel className="text-lg font-medium text-black">
+              Where did you hear about this event:
+            </FormLabel>
+            <div className="flex items-center justify-between mt-6">
+              <label className="flex items-center gap-3 text-lg">
+                <Input
+                  className="w-5 h-5"
+                  type="radio"
+                  value="social_media"
+                  {...register("source")}
+                />
+                Social media
+              </label>
+              <label className="flex items-center gap-3 text-lg">
+                <Input
+                  className="w-5 h-5"
+                  type="radio"
+                  value="friends"
+                  {...register("source")}
+                />
+                Friends
+              </label>
+              <label className="flex items-center gap-3 text-lg">
+                <Input
+                  className="w-5 h-5"
+                  type="radio"
+                  value="other"
+                  {...register("source")}
+                />
+                Found myself
+              </label>
+            </div>
+            {errors.source?.message &&
+              typeof errors.source.message === "string" && (
+                <p className="text-red-500 font-medium text-sm">
+                  {errors.source.message}
+                </p>
+              )}
           </div>
-        </div>
-        <Button type="submit">Register</Button>
-      </form>
-    </div>
+
+          <Button
+            type="submit"
+            className="bg-sky-600 hover:bg-sky-600/80 focus:bg-sky-600/80 transition-all w-full text-base"
+          >
+            Register
+          </Button>
+        </form>
+      </Form>
+    </>
   );
 }

@@ -166,6 +166,7 @@ export default function PageRegister() {
                 <FormControl>
                   <Input
                     type="date"
+                    placeholder="Enter your date of birth"
                     {...field}
                     className={cn(
                       "w-full text-base",

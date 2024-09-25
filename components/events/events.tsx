@@ -29,9 +29,11 @@ export default function Events() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const fetchEvents = async (page: number, search: string) => {
     const response = await fetch(`/api/events?page=${page}&search=${search}`);
+    setLoading(false);
     const data = await response.json();
     setEvents(data.events);
     setTotalPages(data.totalPages);
@@ -78,62 +80,78 @@ export default function Events() {
         />
         <Search className="text-sky-600 size-4 absolute top-3 left-2" />
       </div>
-      <ul className="grid grid-cols-2 gap-4 xl:grid-cols-4 xl:gap-8 mb-6 xl:mb-14">
-        {events.map((event) => (
-          <ItemEvent
-            key={event.id}
-            title={event.title}
-            description={event.description}
-            id={event.id}
-            createdAt={event.createdAt}
-          />
-        ))}
-      </ul>
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem className="text-sky-700">
-            <Button
-              onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-              variant="transparent"
-              size="sm"
-            >
-              <ArrowLeft className="size-4 text-sky-600" />
-            </Button>
-          </PaginationItem>
+      {events.length > 0 ? (
+        <>
+          <ul className="grid grid-cols-2 gap-4 xl:grid-cols-4 xl:gap-8 mb-6 xl:mb-14">
+            {events.map((event) => (
+              <ItemEvent
+                key={event.id}
+                title={event.title}
+                description={event.description}
+                id={event.id}
+                createdAt={event.createdAt}
+              />
+            ))}
+          </ul>
 
-          {Array.from({ length: totalPages }, (_, index) => (
-            <PaginationItem key={index} className="text-sky-600 ">
-              <PaginationLink
-                href="#"
-                onClick={() => handlePageChange(index + 1)}
-                isActive={currentPage === index + 1}
-                className={
-                  (cn(
-                    currentPage === index + 1
-                      ? "bg-sky-600/10 text-sky-600 border-sky-600 hover:bg-sky-600/10 focus:bg-sky-600/10"
-                      : ""
-                  ),
-                  "w-8 h-8 md:w-10 md:h-10")
-                }
-              >
-                {index + 1}
-              </PaginationLink>
-            </PaginationItem>
-          ))}
+          <Pagination>
+            <PaginationContent>
+              <PaginationItem className="text-sky-700">
+                <Button
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 1}
+                  variant="transparent"
+                  size="sm"
+                >
+                  <ArrowLeft className="size-4 text-sky-600" />
+                </Button>
+              </PaginationItem>
 
-          <PaginationItem className="text-red-700 ">
-            <Button
-              onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              variant="transparent"
-              size="sm"
-            >
-              <ArrowRight className="size-4 text-sky-600" />
-            </Button>
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+              {Array.from({ length: totalPages }, (_, index) => (
+                <PaginationItem key={index} className="text-sky-600 ">
+                  <PaginationLink
+                    href="#"
+                    onClick={() => handlePageChange(index + 1)}
+                    isActive={currentPage === index + 1}
+                    className={
+                      (cn(
+                        currentPage === index + 1
+                          ? "bg-sky-600/10 text-sky-600 border-sky-600 hover:bg-sky-600/10 focus:bg-sky-600/10"
+                          : ""
+                      ),
+                      "w-8 h-8 md:w-10 md:h-10")
+                    }
+                  >
+                    {index + 1}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
+              <PaginationItem className="text-red-700 ">
+                <Button
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage === totalPages}
+                  variant="transparent"
+                  size="sm"
+                >
+                  <ArrowRight className="size-4 text-sky-600" />
+                </Button>
+              </PaginationItem>
+            </PaginationContent>
+          </Pagination>
+        </>
+      ) : (
+        <div className="text-center font-semibold text-sky-600 text-xl">
+          {loading ? (
+            <span className="loader inline-block"></span>
+          ) : (
+            <>
+              "No events found!"
+              <span className="loader block mx-auto mt-6"></span>
+            </>
+          )}
+        </div>
+      )}
     </>
   );
 }

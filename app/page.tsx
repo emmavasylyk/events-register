@@ -1,5 +1,5 @@
 import Events from "@/components/events/events";
-
+export const dynamic = "force-dynamic"; // force-dynamic
 export default function Home() {
   return (
     <div>

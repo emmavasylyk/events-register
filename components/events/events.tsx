@@ -101,6 +101,17 @@ export default function Events() {
     fetchEvents(1, searchQuery, startDate, event.target.value);
   };
 
+  const searchParams = new URLSearchParams(window.location.search);
+  const searchFromUrl = searchParams.get("search") || "";
+  const startDateFromUrl = searchParams.get("startDate") || "";
+  const endDateFromUrl = searchParams.get("endDate") || "";
+
+  useEffect(() => {
+    setSearchQuery(searchFromUrl);
+    setStartDate(startDateFromUrl);
+    setEndDate(endDateFromUrl);
+  }, []);
+
   return (
     <>
       <div className="md:flex md:items-center md:justify-between md:mb-4 md:flex-row-reverse">

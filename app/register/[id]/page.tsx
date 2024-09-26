@@ -59,6 +59,7 @@ export default function PageRegister() {
     formState: { errors },
   } = form;
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const onSubmit = async (data: any) => {
     try {
       const response = await fetch("/api/register", {

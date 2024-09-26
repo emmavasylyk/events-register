@@ -46,7 +46,9 @@ export default function Events() {
       endDate,
     }).toString();
 
-    const response = await fetch(`/api/events?${query}`);
+    const response = await fetch(`/api/events?${query}`, {
+      next: { revalidate: 1 },
+    });
     setLoading(false);
     const data = await response.json();
     setEvents(data.events);
@@ -205,7 +207,7 @@ export default function Events() {
             <span className="loader inline-block"></span>
           ) : (
             <>
-              "No events found!"
+              <p>No events found!</p>
               <span className="loader block mx-auto mt-6"></span>
             </>
           )}

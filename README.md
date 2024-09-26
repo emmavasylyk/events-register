@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Event Board App
 
-## Getting Started
+## Project Description
 
-First, run the development server:
+This project is an event board built using **Next.js** and **Prisma** to interact with the database. Users can register for events, view participants, as well as search and filter events based on various criteria.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+### Key Features:
+- **Event Registration** — users can sign up for events they are interested in.
+- **View Registered Participants** — each user can see who has already registered for an event.
+- **Pagination** — events are split into pages, making navigation easier.
+- **Event Search** — a built-in feature allows users to search for events by title, description, or date.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Technologies
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+This project is built using the following technologies:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Next.js** — a React framework used for server-side rendering and routing.
+- **Prisma** — an ORM for interacting with a PostgreSQL database.
+- **PostgreSQL** — a relational database used to store data.
 
-## Learn More
+## Features
 
-To learn more about Next.js, take a look at the following resources:
+### 1. Event Registration
+Users can browse available events and register for the ones they choose.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 2. View Participants
+Users can also view the list of all participants registered for an event.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### 3. Event Pagination
+Events are displayed 12 per page. Users can navigate through the pages with the pagination feature.
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 4. Event Search
+Implemented search functionality allows users to search for events by title, description, and date for easy navigation.

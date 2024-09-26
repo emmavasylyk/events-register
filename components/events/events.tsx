@@ -101,15 +101,16 @@ export default function Events() {
     fetchEvents(1, searchQuery, startDate, event.target.value);
   };
 
-  const searchParams = new URLSearchParams(window.location.search);
-  const searchFromUrl = searchParams.get("search") || "";
-  const startDateFromUrl = searchParams.get("startDate") || "";
-  const endDateFromUrl = searchParams.get("endDate") || "";
-
   useEffect(() => {
-    setSearchQuery(searchFromUrl);
-    setStartDate(startDateFromUrl);
-    setEndDate(endDateFromUrl);
+    if (window !== undefined && window.location !== undefined) {
+      const searchParams = new URLSearchParams(window.location.search);
+      const searchFromUrl = searchParams.get("search") || "";
+      const startDateFromUrl = searchParams.get("startDate") || "";
+      const endDateFromUrl = searchParams.get("endDate") || "";
+      setSearchQuery(searchFromUrl);
+      setStartDate(startDateFromUrl);
+      setEndDate(endDateFromUrl);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

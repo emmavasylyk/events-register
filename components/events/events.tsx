@@ -110,6 +110,7 @@ export default function Events() {
     setSearchQuery(searchFromUrl);
     setStartDate(startDateFromUrl);
     setEndDate(endDateFromUrl);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (

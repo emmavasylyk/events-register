@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { ArrowLeft, ArrowRight, Search } from "lucide-react";
 import debounce from "lodash.debounce";
 
@@ -16,6 +16,7 @@ import {
 
 import { cn } from "@/lib/utils";
 import { Input } from "../ui/input";
+import { useSearchParams } from "next/navigation";
 
 interface Event {
   id: string;
@@ -32,6 +33,8 @@ export default function Events() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [loading, setLoading] = useState(true);
+
+  const searchQueryParams = useSearchParams();
 
   const fetchEvents = async (
     page: number,
@@ -102,130 +105,129 @@ export default function Events() {
   };
 
   useEffect(() => {
-    if (window !== undefined && window.location !== undefined) {
-      const searchParams = new URLSearchParams(window.location.search);
-      const searchFromUrl = searchParams.get("search") || "";
-      const startDateFromUrl = searchParams.get("startDate") || "";
-      const endDateFromUrl = searchParams.get("endDate") || "";
-      setSearchQuery(searchFromUrl);
-      setStartDate(startDateFromUrl);
-      setEndDate(endDateFromUrl);
-    }
+    const searchFromUrl = searchQueryParams.get("search") || "";
+    const startDateFromUrl = searchQueryParams.get("startDate") || "";
+    const endDateFromUrl = searchQueryParams.get("endDate") || "";
+    setSearchQuery(searchFromUrl);
+    setStartDate(startDateFromUrl);
+    setEndDate(endDateFromUrl);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <>
-      <div className="md:flex md:items-center md:justify-between md:mb-4 md:flex-row-reverse">
-        <div className="mb-4 md:mb-0 w-64 relative ml-auto md:ml-0">
-          <Input
-            type="text"
-            placeholder="Search events..."
-            value={searchQuery}
-            onChange={handleSearchChange}
-            className="border p-2 pl-8"
-          />
-          <Search className="text-sky-600 size-4 absolute top-3 left-2" />
-        </div>
-        <div className="flex flex-col md:flex-row md:space-x-4 mb-4 w-[335px] md:w-[448px] xl:w-[486px] md:mb-0 md:justify-between">
-          <div className="flex items-center gap-2 mb-4 md:mb-0">
-            <p className="flex-shrink-0 md:text-sm xl:text-base w-[76px] md:w-[67px] text-sky-600 xl:w-[76px]">
-              Start Date
-            </p>
+      <Suspense fallback={null}>
+        <div className="md:flex md:items-center md:justify-between md:mb-4 md:flex-row-reverse">
+          <div className="mb-4 md:mb-0 w-64 relative ml-auto md:ml-0">
             <Input
-              type="date"
-              value={startDate}
-              onChange={handleStartDateChange}
-              placeholder="Start Date"
-              className=""
+              type="text"
+              placeholder="Search events..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="border p-2 pl-8"
             />
+            <Search className="text-sky-600 size-4 absolute top-3 left-2" />
           </div>
-          <div className="flex items-center gap-2">
-            <p className="flex-shrink-0 md:text-sm xl:text-base w-[76px] md:w-[67px] text-sky-600 xl:w-[76px]">
-              End Date
-            </p>
-            <Input
-              type="date"
-              value={endDate}
-              onChange={handleEndDateChange}
-              placeholder="End Date"
-              className=""
-            />
-          </div>
-        </div>
-      </div>
-      {events.length > 0 ? (
-        <>
-          <ul className="grid grid-cols-2 gap-4 xl:grid-cols-4 xl:gap-8 mb-6 xl:mb-14">
-            {events.map((event) => (
-              <ItemEvent
-                key={event.id}
-                title={event.title}
-                description={event.description}
-                id={event.id}
-                createdAt={event.createdAt}
+          <div className="flex flex-col md:flex-row md:space-x-4 mb-4 w-[335px] md:w-[448px] xl:w-[486px] md:mb-0 md:justify-between">
+            <div className="flex items-center gap-2 mb-4 md:mb-0">
+              <p className="flex-shrink-0 md:text-sm xl:text-base w-[76px] md:w-[67px] text-sky-600 xl:w-[76px]">
+                Start Date
+              </p>
+              <Input
+                type="date"
+                value={startDate}
+                onChange={handleStartDateChange}
+                placeholder="Start Date"
+                className=""
               />
-            ))}
-          </ul>
-
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem className="text-sky-700">
-                <Button
-                  onClick={() => handlePageChange(currentPage - 1)}
-                  disabled={currentPage === 1}
-                  variant="transparent"
-                  size="sm"
-                >
-                  <ArrowLeft className="size-4 text-sky-600" />
-                </Button>
-              </PaginationItem>
-
-              {Array.from({ length: totalPages }, (_, index) => (
-                <PaginationItem key={index} className="text-sky-600 ">
-                  <PaginationLink
-                    href="#"
-                    onClick={() => handlePageChange(index + 1)}
-                    isActive={currentPage === index + 1}
-                    className={
-                      (cn(
-                        currentPage === index + 1
-                          ? "bg-sky-600/10 text-sky-600 border-sky-600 hover:bg-sky-600/10 focus:bg-sky-600/10"
-                          : ""
-                      ),
-                      "w-8 h-8 md:w-10 md:h-10")
-                    }
-                  >
-                    {index + 1}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-
-              <PaginationItem className="text-red-700 ">
-                <Button
-                  onClick={() => handlePageChange(currentPage + 1)}
-                  disabled={currentPage === totalPages}
-                  variant="transparent"
-                  size="sm"
-                >
-                  <ArrowRight className="size-4 text-sky-600" />
-                </Button>
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        </>
-      ) : (
-        <div className="text-center font-semibold text-sky-600 text-xl">
-          {loading ? (
-            <span className="loader inline-block"></span>
-          ) : (
-            <>
-              <p>No events found!</p>
-              <span className="loader block mx-auto mt-6"></span>
-            </>
-          )}
+            </div>
+            <div className="flex items-center gap-2">
+              <p className="flex-shrink-0 md:text-sm xl:text-base w-[76px] md:w-[67px] text-sky-600 xl:w-[76px]">
+                End Date
+              </p>
+              <Input
+                type="date"
+                value={endDate}
+                onChange={handleEndDateChange}
+                placeholder="End Date"
+                className=""
+              />
+            </div>
+          </div>
         </div>
-      )}
+        {events.length > 0 ? (
+          <>
+            <ul className="grid grid-cols-2 gap-4 xl:grid-cols-4 xl:gap-8 mb-6 xl:mb-14">
+              {events.map((event) => (
+                <ItemEvent
+                  key={event.id}
+                  title={event.title}
+                  description={event.description}
+                  id={event.id}
+                  createdAt={event.createdAt}
+                />
+              ))}
+            </ul>
+
+            <Pagination>
+              <PaginationContent>
+                <PaginationItem className="text-sky-700">
+                  <Button
+                    onClick={() => handlePageChange(currentPage - 1)}
+                    disabled={currentPage === 1}
+                    variant="transparent"
+                    size="sm"
+                  >
+                    <ArrowLeft className="size-4 text-sky-600" />
+                  </Button>
+                </PaginationItem>
+
+                {Array.from({ length: totalPages }, (_, index) => (
+                  <PaginationItem key={index} className="text-sky-600 ">
+                    <PaginationLink
+                      href="#"
+                      onClick={() => handlePageChange(index + 1)}
+                      isActive={currentPage === index + 1}
+                      className={
+                        (cn(
+                          currentPage === index + 1
+                            ? "bg-sky-600/10 text-sky-600 border-sky-600 hover:bg-sky-600/10 focus:bg-sky-600/10"
+                            : ""
+                        ),
+                        "w-8 h-8 md:w-10 md:h-10")
+                      }
+                    >
+                      {index + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+
+                <PaginationItem className="text-red-700 ">
+                  <Button
+                    onClick={() => handlePageChange(currentPage + 1)}
+                    disabled={currentPage === totalPages}
+                    variant="transparent"
+                    size="sm"
+                  >
+                    <ArrowRight className="size-4 text-sky-600" />
+                  </Button>
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          </>
+        ) : (
+          <div className="text-center font-semibold text-sky-600 text-xl">
+            {loading ? (
+              <span className="loader inline-block"></span>
+            ) : (
+              <>
+                <p>No events found!</p>
+                <span className="loader block mx-auto mt-6"></span>
+              </>
+            )}
+          </div>
+        )}
+      </Suspense>
     </>
   );
 }

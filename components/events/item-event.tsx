@@ -11,7 +11,12 @@ interface EventProps {
   createdAt: string;
 }
 
-export default function ItemEvent({ id, title, description }: EventProps) {
+export default function ItemEvent({
+  id,
+  title,
+  description,
+  createdAt,
+}: EventProps) {
   const router = useRouter();
 
   return (
@@ -21,7 +26,10 @@ export default function ItemEvent({ id, title, description }: EventProps) {
     >
       <div className="">
         <h2 className="text-base mb-3 md:text-lg font-semibold">{title}</h2>
-        <p className="text-sm md:text-base">{description}</p>
+        <p className="text-sm md:text-base mb-2">{description}</p>
+        <p className="text-xs font-medium">
+          {new Date(createdAt).toLocaleDateString()}
+        </p>
       </div>
       <div className="flex items-center justify-between">
         <Button

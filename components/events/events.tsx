@@ -29,36 +29,55 @@ export default function Events() {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const fetchEvents = async (page: number, search: string) => {
-    const response = await fetch(`/api/events?page=${page}&search=${search}`);
+  const fetchEvents = async (
+    page: number,
+    search: string,
+    startDate: string,
+    endDate: string
+  ) => {
+    const query = new URLSearchParams({
+      page: page.toString(),
+      search,
+      startDate,
+      endDate,
+    }).toString();
+
+    const response = await fetch(`/api/events?${query}`);
     setLoading(false);
     const data = await response.json();
     setEvents(data.events);
     setTotalPages(data.totalPages);
     setCurrentPage(data.currentPage);
 
-    window.history.pushState({}, "", `?page=${page}&search=${search}`);
+    window.history.pushState({}, "", `?${query}`);
   };
 
   const debouncedFetchEvents = debounce((search: string) => {
-    fetchEvents(1, search);
+    fetchEvents(1, search, startDate, endDate);
   }, 300);
 
   useEffect(() => {
-    const pageFromUrl = new URLSearchParams(window.location.search).get("page");
-    const searchFromUrl = new URLSearchParams(window.location.search).get(
-      "search"
-    );
+    const params = new URLSearchParams(window.location.search);
+    const pageFromUrl = params.get("page");
+    const searchFromUrl = params.get("search");
+    const startDateFromUrl = params.get("startDate");
+    const endDateFromUrl = params.get("endDate");
+
     const page = pageFromUrl ? parseInt(pageFromUrl) : 1;
     const search = searchFromUrl || "";
-    fetchEvents(page, search);
+    const startDate = startDateFromUrl || "";
+    const endDate = endDateFromUrl || "";
+
+    fetchEvents(page, search, startDate, endDate);
   }, []);
 
   const handlePageChange = (page: number) => {
     if (page !== currentPage && page > 0 && page <= totalPages) {
-      fetchEvents(page, searchQuery);
+      fetchEvents(page, searchQuery, startDate, endDate);
     }
   };
 
@@ -68,17 +87,57 @@ export default function Events() {
     debouncedFetchEvents(value);
   };
 
+  const handleStartDateChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setStartDate(event.target.value);
+    fetchEvents(1, searchQuery, event.target.value, endDate);
+  };
+
+  const handleEndDateChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setEndDate(event.target.value);
+    fetchEvents(1, searchQuery, startDate, event.target.value);
+  };
+
   return (
     <>
-      <div className="mb-4 w-64 relative ml-auto">
-        <Input
-          type="text"
-          placeholder="Search events..."
-          value={searchQuery}
-          onChange={handleSearchChange}
-          className="border p-2 pl-8"
-        />
-        <Search className="text-sky-600 size-4 absolute top-3 left-2" />
+      <div className="md:flex md:items-center md:justify-between md:mb-4 md:flex-row-reverse">
+        <div className="mb-4 md:mb-0 w-64 relative ml-auto md:ml-0">
+          <Input
+            type="text"
+            placeholder="Search events..."
+            value={searchQuery}
+            onChange={handleSearchChange}
+            className="border p-2 pl-8"
+          />
+          <Search className="text-sky-600 size-4 absolute top-3 left-2" />
+        </div>
+        <div className="flex flex-col md:flex-row md:space-x-4 mb-4 w-[335px] md:w-[448px] xl:w-[486px] md:mb-0 md:justify-between">
+          <div className="flex items-center gap-2 mb-4 md:mb-0">
+            <p className="flex-shrink-0 md:text-sm xl:text-base w-[76px] md:w-[67px] text-sky-600 xl:w-[76px]">
+              Start Date
+            </p>
+            <Input
+              type="date"
+              value={startDate}
+              onChange={handleStartDateChange}
+              placeholder="Start Date"
+              className=""
+            />
+          </div>
+          <div className="flex items-center gap-2">
+            <p className="flex-shrink-0 md:text-sm xl:text-base w-[76px] md:w-[67px] text-sky-600 xl:w-[76px]">
+              End Date
+            </p>
+            <Input
+              type="date"
+              value={endDate}
+              onChange={handleEndDateChange}
+              placeholder="End Date"
+              className=""
+            />
+          </div>
+        </div>
       </div>
       {events.length > 0 ? (
         <>
